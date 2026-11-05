@@ -55,16 +55,16 @@ function create() {
   player.setCollideWorldBounds(true);
   player.setDepth(10);
   player.setBounce(0);
-  player.body.setSize(22, 39);
-  player.body.setOffset(9, 10);
+  player.body.setSize(30, 48);
+  player.body.setOffset(13, 16);
   this.physics.add.collider(player, platforms);
 
   // Snakes guard parts of the trail. Touching one costs a life.
   const snakes = this.physics.add.staticGroup();
-  [[690, 493], [1190, 493], [1740, 493], [2240, 493]].forEach(([x, y]) => {
+  [[690, 478], [1190, 478], [1740, 478], [2240, 478]].forEach(([x, y]) => {
     const snake = snakes.create(x, y, "snake");
-    snake.setScale(1.4);
-    snake.setDepth(8);
+    snake.setScale(1.55);
+    snake.setDepth(9);
     snake.refreshBody();
   });
   this.physics.add.overlap(player, snakes, () => damagePlayer(this));
@@ -190,38 +190,93 @@ function update() {
 }
 
 function createTextures(scene) {
-  // Four-frame explorer sprite sheet with alternating arm and leg positions.
-  const frameWidth = 40;
-  const frameHeight = 56;
+  // Detailed explorer sprite sheet with four walking poses.
+  const frameWidth = 56;
+  const frameHeight = 72;
   const sheet = scene.make.graphics({ x: 0, y: 0 });
+  const legOffsets = [[-4, 3], [-1, 1], [4, -3], [1, -1]];
+  const armOffsets = [[-4, 3], [2, -2], [4, -3], [-2, 2]];
 
   for (let frame = 0; frame < 4; frame++) {
     const x = frame * frameWidth;
-    const swing = [-3, 2, 3, -2][frame];
+    const leg = legOffsets[frame];
+    const arm = armOffsets[frame];
 
-    sheet.fillStyle(0x9b5c2e);
-    sheet.fillRoundedRect(x + 7, 23, 10, 19, 4); // Backpack
-    sheet.fillStyle(0x246344);
-    sheet.fillRoundedRect(x + 13, 21, 19, 23, 6); // Shirt
-    sheet.fillStyle(0xf0bd8c);
-    sheet.fillCircle(x + 23, 15, 10); // Face
-    sheet.fillStyle(0x4b2d1d);
-    sheet.fillEllipse(x + 23, 8, 22, 7); // Hair
-    sheet.fillStyle(0xc28a42);
-    sheet.fillRoundedRect(x + 10, 5, 26, 5, 3); // Explorer hat
-    sheet.fillStyle(0x17251b);
-    sheet.fillCircle(x + 27, 15, 1.5); // Eye
+    // Soft ground shadow.
+    sheet.fillStyle(0x183c2a, 0.22);
+    sheet.fillEllipse(x + 28, 67, 35, 7);
 
-    sheet.lineStyle(5, 0xf0bd8c, 1);
-    sheet.lineBetween(x + 15, 26, x + 10 + swing, 36);
-    sheet.lineBetween(x + 29, 26, x + 34 - swing, 36);
+    // Backpack with straps and side pocket.
+    sheet.fillStyle(0x49351f);
+    sheet.fillRoundedRect(x + 8, 29, 15, 25, 5);
+    sheet.fillStyle(0x9b6534);
+    sheet.fillRoundedRect(x + 6, 31, 14, 22, 5);
+    sheet.fillStyle(0xc18a4d);
+    sheet.fillRoundedRect(x + 8, 39, 10, 8, 2);
+    sheet.lineStyle(2, 0x51371f, 1);
+    sheet.lineBetween(x + 18, 28, x + 24, 48);
 
-    sheet.lineStyle(6, 0x493222, 1);
-    sheet.lineBetween(x + 18, 42, x + 16 + swing, 51);
-    sheet.lineBetween(x + 27, 42, x + 28 - swing, 51);
-    sheet.fillStyle(0x30251f);
-    sheet.fillRoundedRect(x + 10 + swing, 49, 10, 5, 2);
-    sheet.fillRoundedRect(x + 23 - swing, 49, 10, 5, 2);
+    // Trousers and articulated legs.
+    sheet.fillStyle(0x354b3b);
+    sheet.fillRoundedRect(x + 20, 43, 10, 16, 3);
+    sheet.fillRoundedRect(x + 29, 43, 10, 16, 3);
+    sheet.lineStyle(7, 0x53634b, 1);
+    sheet.lineBetween(x + 24, 48, x + 22 + leg[0], 62 + leg[1]);
+    sheet.lineBetween(x + 34, 48, x + 35 - leg[0], 62 - leg[1]);
+
+    // Hiking boots.
+    sheet.fillStyle(0x38291f);
+    sheet.fillRoundedRect(x + 14 + leg[0], 60 + leg[1], 15, 8, 3);
+    sheet.fillRoundedRect(x + 29 - leg[0], 60 - leg[1], 15, 8, 3);
+    sheet.fillStyle(0x987044);
+    sheet.fillRect(x + 17 + leg[0], 61 + leg[1], 8, 2);
+    sheet.fillRect(x + 32 - leg[0], 61 - leg[1], 8, 2);
+
+    // Green outdoor shirt and shoulder seams.
+    sheet.fillStyle(0x174d35);
+    sheet.fillRoundedRect(x + 18, 25, 23, 25, 7);
+    sheet.fillStyle(0x347b4e);
+    sheet.fillRoundedRect(x + 21, 26, 17, 21, 5);
+    sheet.fillStyle(0x9ab56d);
+    sheet.fillRect(x + 28, 29, 2, 15);
+    sheet.fillStyle(0x173c2b);
+    sheet.fillRoundedRect(x + 27, 44, 7, 5, 2);
+
+    // Arms, sleeves and hands.
+    sheet.fillStyle(0x245c3d);
+    sheet.fillRoundedRect(x + 15, 28, 10, 13, 4);
+    sheet.fillRoundedRect(x + 36, 28, 10, 13, 4);
+    sheet.lineStyle(6, 0xc98e63, 1);
+    sheet.lineBetween(x + 19, 38, x + 16 + arm[0], 49 + arm[1]);
+    sheet.lineBetween(x + 41, 38, x + 44 - arm[0], 49 - arm[1]);
+    sheet.fillStyle(0xe0ad80);
+    sheet.fillCircle(x + 16 + arm[0], 50 + arm[1], 4);
+    sheet.fillCircle(x + 44 - arm[0], 50 - arm[1], 4);
+
+    // Neck and face.
+    sheet.fillStyle(0xb97852);
+    sheet.fillRoundedRect(x + 27, 20, 9, 9, 3);
+    sheet.fillStyle(0xd99e75);
+    sheet.fillEllipse(x + 31, 17, 21, 24);
+    sheet.fillStyle(0x6a3d27);
+    sheet.fillEllipse(x + 30, 8, 22, 13);
+    sheet.fillStyle(0xd99e75);
+    sheet.fillEllipse(x + 40, 18, 4, 6);
+    sheet.fillStyle(0x29251e);
+    sheet.fillCircle(x + 37, 16, 1.5);
+    sheet.fillStyle(0x8b4e3b);
+    sheet.lineStyle(1, 0x8b4e3b, 1);
+    sheet.lineBetween(x + 38, 23, x + 42, 22);
+
+    // Safari hat with brim, crown and band.
+    sheet.fillStyle(0x77532e);
+    sheet.fillEllipse(x + 31, 8, 34, 9);
+    sheet.fillStyle(0xc49a58);
+    sheet.fillEllipse(x + 31, 4, 22, 10);
+    sheet.fillStyle(0xe0bd79);
+    sheet.fillRect(x + 21, 7, 20, 2);
+    sheet.fillStyle(0x79552f);
+    sheet.fillRect(x + 29, 1, 5, 3);
   }
 
   sheet.generateTexture("hero-walk-sheet", frameWidth * 4, frameHeight);
@@ -231,23 +286,39 @@ function createTextures(scene) {
   }
   sheet.destroy();
 
+  // A clear airborne pose using the same explorer outfit.
   const jump = scene.make.graphics({ x: 0, y: 0 });
-  jump.fillStyle(0x9b5c2e);
-  jump.fillRoundedRect(7, 23, 10, 19, 4);
-  jump.fillStyle(0x246344);
-  jump.fillRoundedRect(13, 21, 19, 23, 6);
-  jump.fillStyle(0xf0bd8c);
-  jump.fillCircle(23, 15, 10);
-  jump.fillStyle(0x4b2d1d);
-  jump.fillEllipse(23, 8, 22, 7);
-  jump.fillStyle(0xc28a42);
-  jump.fillRoundedRect(10, 5, 26, 5, 3);
-  jump.fillStyle(0x17251b);
-  jump.fillCircle(27, 15, 1.5);
-  jump.lineStyle(6, 0x493222, 1);
-  jump.lineBetween(18, 42, 11, 49);
-  jump.lineBetween(27, 42, 35, 47);
-  jump.generateTexture("hero-jump", 40, 56);
+  jump.fillStyle(0x49351f);
+  jump.fillRoundedRect(8, 30, 15, 25, 5);
+  jump.fillStyle(0x9b6534);
+  jump.fillRoundedRect(7, 32, 14, 22, 5);
+  jump.fillStyle(0x174d35);
+  jump.fillRoundedRect(19, 25, 23, 25, 7);
+  jump.fillStyle(0x347b4e);
+  jump.fillRoundedRect(22, 26, 17, 21, 5);
+  jump.fillStyle(0x354b3b);
+  jump.fillRoundedRect(22, 46, 10, 12, 3);
+  jump.fillRoundedRect(32, 45, 10, 12, 3);
+  jump.lineStyle(7, 0x53634b, 1);
+  jump.lineBetween(25, 52, 15, 60);
+  jump.lineBetween(37, 51, 47, 58);
+  jump.fillStyle(0x38291f);
+  jump.fillRoundedRect(8, 57, 15, 8, 3);
+  jump.fillRoundedRect(41, 55, 13, 8, 3);
+  jump.lineStyle(6, 0xc98e63, 1);
+  jump.lineBetween(20, 34, 10, 25);
+  jump.lineBetween(41, 34, 50, 24);
+  jump.fillStyle(0xd99e75);
+  jump.fillEllipse(31, 17, 21, 24);
+  jump.fillStyle(0x6a3d27);
+  jump.fillEllipse(30, 8, 22, 13);
+  jump.fillStyle(0x29251e);
+  jump.fillCircle(37, 16, 1.5);
+  jump.fillStyle(0x77532e);
+  jump.fillEllipse(31, 8, 34, 9);
+  jump.fillStyle(0xc49a58);
+  jump.fillEllipse(31, 4, 22, 10);
+  jump.generateTexture("hero-jump", 56, 72);
   jump.destroy();
 
   const ground = scene.make.graphics({ x: 0, y: 0 });
@@ -270,18 +341,29 @@ function createTextures(scene) {
   platform.generateTexture("platform", 128, 32);
   platform.destroy();
 
+  // Bright, high-contrast coiled jungle snake with a raised head and forked tongue.
   const snake = scene.make.graphics({ x: 0, y: 0 });
-  snake.fillStyle(0x2d713c);
-  snake.fillEllipse(18, 17, 31, 15);
-  snake.fillStyle(0x63a94d);
-  snake.fillEllipse(18, 13, 25, 9);
-  snake.fillStyle(0xf5e9a6);
-  snake.fillCircle(28, 12, 3);
-  snake.fillStyle(0x20251a);
-  snake.fillCircle(29, 12, 1.4);
-  snake.lineStyle(2, 0xc64d43, 1);
-  snake.lineBetween(31, 18, 37, 21);
-  snake.generateTexture("snake", 40, 28);
+  snake.fillStyle(0x183e32);
+  snake.fillEllipse(27, 29, 49, 18);
+  snake.lineStyle(9, 0x1f5139, 1);
+  snake.strokeEllipse(25, 24, 34, 23);
+  snake.lineStyle(6, 0x9ebd42, 1);
+  snake.strokeEllipse(25, 24, 34, 23);
+  snake.lineStyle(10, 0x246b48, 1);
+  snake.lineBetween(36, 24, 43, 13);
+  snake.fillStyle(0x1e7049);
+  snake.fillEllipse(45, 12, 20, 15);
+  snake.fillStyle(0xd6dc70);
+  snake.fillEllipse(48, 9, 8, 5);
+  snake.fillStyle(0x171d16);
+  snake.fillCircle(49, 9, 2);
+  snake.fillStyle(0xf4d65c);
+  snake.fillCircle(39, 13, 2);
+  snake.lineStyle(3, 0xe34c45, 1);
+  snake.lineBetween(53, 16, 59, 19);
+  snake.lineBetween(59, 19, 62, 17);
+  snake.lineBetween(59, 19, 62, 21);
+  snake.generateTexture("snake", 64, 40);
   snake.destroy();
 
   const gem = scene.make.graphics({ x: 0, y: 0 });
