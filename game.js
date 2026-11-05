@@ -55,17 +55,29 @@ function create() {
   player.setCollideWorldBounds(true);
   player.setDepth(10);
   player.setBounce(0);
-  player.body.setSize(30, 48);
-  player.body.setOffset(13, 16);
+  player.body.setSize(32, 48);
+  player.body.setOffset(12, 18);
   this.physics.add.collider(player, platforms);
 
   // Snakes guard parts of the trail. Touching one costs a life.
   const snakes = this.physics.add.staticGroup();
   [[690, 478], [1190, 478], [1740, 478], [2240, 478]].forEach(([x, y]) => {
     const snake = snakes.create(x, y, "snake");
-    snake.setScale(1.55);
-    snake.setDepth(9);
+    snake.setScale(1.25);
+    snake.setDepth(22);
     snake.refreshBody();
+
+    // High-contrast warning label makes each hazard easy to spot.
+    this.add.text(x, y - 57, "SNAKE!", {
+      fontFamily: "Arial",
+      fontSize: "15px",
+      fontStyle: "bold",
+      color: "#ffffff",
+      backgroundColor: "#a51f27",
+      stroke: "#351313",
+      strokeThickness: 3,
+      padding: { x: 7, y: 4 }
+    }).setOrigin(0.5).setDepth(23);
   });
   this.physics.add.overlap(player, snakes, () => damagePlayer(this));
 
@@ -190,93 +202,82 @@ function update() {
 }
 
 function createTextures(scene) {
-  // Detailed explorer sprite sheet with four walking poses.
+  // Block-style explorer sprite sheet inspired by voxel adventure games.
   const frameWidth = 56;
   const frameHeight = 72;
   const sheet = scene.make.graphics({ x: 0, y: 0 });
-  const legOffsets = [[-4, 3], [-1, 1], [4, -3], [1, -1]];
-  const armOffsets = [[-4, 3], [2, -2], [4, -3], [-2, 2]];
+  const stride = [-3, 2, 3, -2];
 
   for (let frame = 0; frame < 4; frame++) {
     const x = frame * frameWidth;
-    const leg = legOffsets[frame];
-    const arm = armOffsets[frame];
+    const step = stride[frame];
 
-    // Soft ground shadow.
-    sheet.fillStyle(0x183c2a, 0.22);
-    sheet.fillEllipse(x + 28, 67, 35, 7);
-
-    // Backpack with straps and side pocket.
-    sheet.fillStyle(0x49351f);
-    sheet.fillRoundedRect(x + 8, 29, 15, 25, 5);
+    // Backpack: squared-off voxel shape.
+    sheet.fillStyle(0x49321e);
+    sheet.fillRect(x + 7, 29, 14, 25);
     sheet.fillStyle(0x9b6534);
-    sheet.fillRoundedRect(x + 6, 31, 14, 22, 5);
+    sheet.fillRect(x + 9, 31, 11, 19);
     sheet.fillStyle(0xc18a4d);
-    sheet.fillRoundedRect(x + 8, 39, 10, 8, 2);
-    sheet.lineStyle(2, 0x51371f, 1);
-    sheet.lineBetween(x + 18, 28, x + 24, 48);
+    sheet.fillRect(x + 10, 39, 9, 7);
 
-    // Trousers and articulated legs.
+    // Legs and boots, alternating for a simple walk cycle.
+    sheet.fillStyle(0x263d31);
+    sheet.fillRect(x + 21, 45, 9, 15 + step);
+    sheet.fillRect(x + 30, 45, 9, 15 - step);
     sheet.fillStyle(0x354b3b);
-    sheet.fillRoundedRect(x + 20, 43, 10, 16, 3);
-    sheet.fillRoundedRect(x + 29, 43, 10, 16, 3);
-    sheet.lineStyle(7, 0x53634b, 1);
-    sheet.lineBetween(x + 24, 48, x + 22 + leg[0], 62 + leg[1]);
-    sheet.lineBetween(x + 34, 48, x + 35 - leg[0], 62 - leg[1]);
-
-    // Hiking boots.
+    sheet.fillRect(x + 21, 45, 9, 8);
+    sheet.fillRect(x + 30, 45, 9, 8);
     sheet.fillStyle(0x38291f);
-    sheet.fillRoundedRect(x + 14 + leg[0], 60 + leg[1], 15, 8, 3);
-    sheet.fillRoundedRect(x + 29 - leg[0], 60 - leg[1], 15, 8, 3);
-    sheet.fillStyle(0x987044);
-    sheet.fillRect(x + 17 + leg[0], 61 + leg[1], 8, 2);
-    sheet.fillRect(x + 32 - leg[0], 61 - leg[1], 8, 2);
+    sheet.fillRect(x + 17 + step, 59 + step, 14, 8);
+    sheet.fillRect(x + 29 - step, 59 - step, 14, 8);
+    sheet.fillStyle(0xb58a50);
+    sheet.fillRect(x + 19 + step, 60 + step, 8, 2);
+    sheet.fillRect(x + 31 - step, 60 - step, 8, 2);
 
-    // Green outdoor shirt and shoulder seams.
-    sheet.fillStyle(0x174d35);
-    sheet.fillRoundedRect(x + 18, 25, 23, 25, 7);
+    // Square torso with a brighter front panel.
+    sheet.fillStyle(0x17452f);
+    sheet.fillRect(x + 19, 25, 23, 24);
     sheet.fillStyle(0x347b4e);
-    sheet.fillRoundedRect(x + 21, 26, 17, 21, 5);
+    sheet.fillRect(x + 22, 27, 17, 18);
     sheet.fillStyle(0x9ab56d);
-    sheet.fillRect(x + 28, 29, 2, 15);
-    sheet.fillStyle(0x173c2b);
-    sheet.fillRoundedRect(x + 27, 44, 7, 5, 2);
+    sheet.fillRect(x + 29, 29, 2, 14);
+    sheet.fillStyle(0x183a29);
+    sheet.fillRect(x + 27, 45, 7, 4);
 
-    // Arms, sleeves and hands.
+    // Block arms swing with the legs.
     sheet.fillStyle(0x245c3d);
-    sheet.fillRoundedRect(x + 15, 28, 10, 13, 4);
-    sheet.fillRoundedRect(x + 36, 28, 10, 13, 4);
-    sheet.lineStyle(6, 0xc98e63, 1);
-    sheet.lineBetween(x + 19, 38, x + 16 + arm[0], 49 + arm[1]);
-    sheet.lineBetween(x + 41, 38, x + 44 - arm[0], 49 - arm[1]);
-    sheet.fillStyle(0xe0ad80);
-    sheet.fillCircle(x + 16 + arm[0], 50 + arm[1], 4);
-    sheet.fillCircle(x + 44 - arm[0], 50 - arm[1], 4);
+    sheet.fillRect(x + 14, 27, 8, 13);
+    sheet.fillRect(x + 40, 27, 8, 13);
+    sheet.fillStyle(0xd99e75);
+    sheet.fillRect(x + 14 + step, 39, 8, 12 + step);
+    sheet.fillRect(x + 40 - step, 39, 8, 12 - step);
 
-    // Neck and face.
+    // Square head, hair, face and pixel eyes.
     sheet.fillStyle(0xb97852);
-    sheet.fillRoundedRect(x + 27, 20, 9, 9, 3);
+    sheet.fillRect(x + 23, 9, 22, 20);
     sheet.fillStyle(0xd99e75);
-    sheet.fillEllipse(x + 31, 17, 21, 24);
-    sheet.fillStyle(0x6a3d27);
-    sheet.fillEllipse(x + 30, 8, 22, 13);
-    sheet.fillStyle(0xd99e75);
-    sheet.fillEllipse(x + 40, 18, 4, 6);
+    sheet.fillRect(x + 25, 11, 18, 16);
+    sheet.fillStyle(0x563522);
+    sheet.fillRect(x + 22, 6, 24, 7);
+    sheet.fillRect(x + 22, 10, 4, 7);
     sheet.fillStyle(0x29251e);
-    sheet.fillCircle(x + 37, 16, 1.5);
+    sheet.fillRect(x + 37, 17, 3, 3);
     sheet.fillStyle(0x8b4e3b);
-    sheet.lineStyle(1, 0x8b4e3b, 1);
-    sheet.lineBetween(x + 38, 23, x + 42, 22);
+    sheet.fillRect(x + 37, 23, 5, 2);
 
-    // Safari hat with brim, crown and band.
+    // Square safari hat.
     sheet.fillStyle(0x77532e);
-    sheet.fillEllipse(x + 31, 8, 34, 9);
+    sheet.fillRect(x + 19, 7, 31, 4);
     sheet.fillStyle(0xc49a58);
-    sheet.fillEllipse(x + 31, 4, 22, 10);
+    sheet.fillRect(x + 24, 1, 21, 7);
     sheet.fillStyle(0xe0bd79);
-    sheet.fillRect(x + 21, 7, 20, 2);
+    sheet.fillRect(x + 25, 6, 19, 2);
     sheet.fillStyle(0x79552f);
-    sheet.fillRect(x + 29, 1, 5, 3);
+    sheet.fillRect(x + 31, 2, 5, 2);
+
+    // Small shadow.
+    sheet.fillStyle(0x183c2a, 0.25);
+    sheet.fillRect(x + 15, 68, 30, 3);
   }
 
   sheet.generateTexture("hero-walk-sheet", frameWidth * 4, frameHeight);
@@ -286,38 +287,36 @@ function createTextures(scene) {
   }
   sheet.destroy();
 
-  // A clear airborne pose using the same explorer outfit.
+  // Blocky airborne pose.
   const jump = scene.make.graphics({ x: 0, y: 0 });
-  jump.fillStyle(0x49351f);
-  jump.fillRoundedRect(8, 30, 15, 25, 5);
+  jump.fillStyle(0x49321e);
+  jump.fillRect(7, 30, 14, 24);
   jump.fillStyle(0x9b6534);
-  jump.fillRoundedRect(7, 32, 14, 22, 5);
-  jump.fillStyle(0x174d35);
-  jump.fillRoundedRect(19, 25, 23, 25, 7);
+  jump.fillRect(9, 32, 11, 18);
+  jump.fillStyle(0x17452f);
+  jump.fillRect(19, 25, 23, 24);
   jump.fillStyle(0x347b4e);
-  jump.fillRoundedRect(22, 26, 17, 21, 5);
-  jump.fillStyle(0x354b3b);
-  jump.fillRoundedRect(22, 46, 10, 12, 3);
-  jump.fillRoundedRect(32, 45, 10, 12, 3);
-  jump.lineStyle(7, 0x53634b, 1);
-  jump.lineBetween(25, 52, 15, 60);
-  jump.lineBetween(37, 51, 47, 58);
+  jump.fillRect(22, 27, 17, 18);
+  jump.fillStyle(0x263d31);
+  jump.fillRect(21, 45, 9, 12);
+  jump.fillRect(31, 44, 9, 12);
   jump.fillStyle(0x38291f);
-  jump.fillRoundedRect(8, 57, 15, 8, 3);
-  jump.fillRoundedRect(41, 55, 13, 8, 3);
-  jump.lineStyle(6, 0xc98e63, 1);
-  jump.lineBetween(20, 34, 10, 25);
-  jump.lineBetween(41, 34, 50, 24);
+  jump.fillRect(9, 56, 14, 8);
+  jump.fillRect(39, 54, 14, 8);
   jump.fillStyle(0xd99e75);
-  jump.fillEllipse(31, 17, 21, 24);
-  jump.fillStyle(0x6a3d27);
-  jump.fillEllipse(30, 8, 22, 13);
+  jump.fillRect(12, 30, 8, 13);
+  jump.fillRect(42, 29, 8, 13);
+  jump.fillRect(23, 9, 22, 20);
+  jump.fillStyle(0xb97852);
+  jump.fillRect(23, 9, 22, 4);
+  jump.fillStyle(0x563522);
+  jump.fillRect(22, 6, 24, 7);
   jump.fillStyle(0x29251e);
-  jump.fillCircle(37, 16, 1.5);
+  jump.fillRect(37, 17, 3, 3);
   jump.fillStyle(0x77532e);
-  jump.fillEllipse(31, 8, 34, 9);
+  jump.fillRect(19, 7, 31, 4);
   jump.fillStyle(0xc49a58);
-  jump.fillEllipse(31, 4, 22, 10);
+  jump.fillRect(24, 1, 21, 7);
   jump.generateTexture("hero-jump", 56, 72);
   jump.destroy();
 
@@ -341,29 +340,36 @@ function createTextures(scene) {
   platform.generateTexture("platform", 128, 32);
   platform.destroy();
 
-  // Bright, high-contrast coiled jungle snake with a raised head and forked tongue.
+  // Large bright cartoon snake with a contrasting outline and raised head.
   const snake = scene.make.graphics({ x: 0, y: 0 });
-  snake.fillStyle(0x183e32);
-  snake.fillEllipse(27, 29, 49, 18);
-  snake.lineStyle(9, 0x1f5139, 1);
-  snake.strokeEllipse(25, 24, 34, 23);
-  snake.lineStyle(6, 0x9ebd42, 1);
-  snake.strokeEllipse(25, 24, 34, 23);
-  snake.lineStyle(10, 0x246b48, 1);
-  snake.lineBetween(36, 24, 43, 13);
-  snake.fillStyle(0x1e7049);
-  snake.fillEllipse(45, 12, 20, 15);
-  snake.fillStyle(0xd6dc70);
-  snake.fillEllipse(48, 9, 8, 5);
-  snake.fillStyle(0x171d16);
-  snake.fillCircle(49, 9, 2);
-  snake.fillStyle(0xf4d65c);
-  snake.fillCircle(39, 13, 2);
-  snake.lineStyle(3, 0xe34c45, 1);
-  snake.lineBetween(53, 16, 59, 19);
-  snake.lineBetween(59, 19, 62, 17);
-  snake.lineBetween(59, 19, 62, 21);
-  snake.generateTexture("snake", 64, 40);
+  snake.fillStyle(0x17251a);
+  snake.fillEllipse(42, 44, 72, 28);
+  snake.lineStyle(16, 0x17251a, 1);
+  snake.strokeEllipse(39, 34, 51, 31);
+  snake.lineStyle(11, 0x9acb35, 1);
+  snake.strokeEllipse(39, 34, 51, 31);
+  snake.lineStyle(13, 0x2e9b50, 1);
+  snake.lineBetween(54, 32, 66, 16);
+  snake.fillStyle(0x17251a);
+  snake.fillRoundedRect(60, 5, 31, 23, 7);
+  snake.fillStyle(0x2e9b50);
+  snake.fillRoundedRect(63, 7, 26, 18, 6);
+  snake.fillStyle(0xf5e76a);
+  snake.fillRect(79, 11, 7, 7);
+  snake.fillStyle(0x101710);
+  snake.fillRect(82, 12, 3, 5);
+  snake.fillStyle(0xf5e76a);
+  snake.fillRect(68, 14, 5, 5);
+  snake.fillStyle(0xe84c45);
+  snake.fillRect(87, 22, 9, 3);
+  snake.fillRect(94, 22, 3, 6);
+  snake.fillRect(94, 22, 3, -4);
+  // Bright dorsal spots.
+  snake.fillStyle(0xd4e85a);
+  snake.fillRect(25, 28, 6, 4);
+  snake.fillRect(39, 25, 6, 4);
+  snake.fillRect(51, 29, 6, 4);
+  snake.generateTexture("snake", 100, 64);
   snake.destroy();
 
   const gem = scene.make.graphics({ x: 0, y: 0 });
