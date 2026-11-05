@@ -62,7 +62,10 @@ function create() {
   // Snakes guard parts of the trail. Touching one costs a life.
   const snakes = this.physics.add.staticGroup();
   [[690, 493], [1190, 493], [1740, 493], [2240, 493]].forEach(([x, y]) => {
-    snakes.create(x, y, "snake");
+    const snake = snakes.create(x, y, "snake");
+    snake.setScale(1.4);
+    snake.setDepth(8);
+    snake.refreshBody();
   });
   this.physics.add.overlap(player, snakes, () => damagePlayer(this));
 
@@ -87,7 +90,8 @@ function create() {
     space: Phaser.Input.Keyboard.KeyCodes.SPACE,
     a: Phaser.Input.Keyboard.KeyCodes.A,
     d: Phaser.Input.Keyboard.KeyCodes.D,
-    w: Phaser.Input.Keyboard.KeyCodes.W
+    w: Phaser.Input.Keyboard.KeyCodes.W,
+    restart: Phaser.Input.Keyboard.KeyCodes.R
   });
 
   this.cameras.main.setBounds(0, 0, WORLD_WIDTH, GAME_HEIGHT);
@@ -138,7 +142,7 @@ function create() {
 }
 
 function update() {
-  if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R)) && levelComplete) {
+  if (levelComplete && Phaser.Input.Keyboard.JustDown(keys.restart)) {
     this.scene.restart();
     return;
   }
@@ -180,8 +184,8 @@ function update() {
 
   if (player.x > WORLD_WIDTH - 70) {
     levelComplete = true;
-    player.setVelocity(0, 0);
-    showMessage(this, "Trail complete! Press R to play again.");
+    freezePlayer();
+    showMessage(this, "TRAIL COMPLETE! Press R to play again.");
   }
 }
 
@@ -376,6 +380,16 @@ function createJungleBackground(scene) {
   }
 }
 
+function freezePlayer() {
+  if (!player || !player.body) return;
+  player.setVelocity(0, 0);
+  player.body.setAllowGravity(false);
+  player.setImmovable(true);
+  player.anims.stop();
+  player.setTexture("hero-walk-sheet", 0);
+  player.clearTint();
+}
+
 function damagePlayer(scene) {
   if (levelComplete || scene.time.now < invulnerableUntil) return;
 
@@ -391,8 +405,8 @@ function damagePlayer(scene) {
 
   if (lives <= 0) {
     levelComplete = true;
-    player.setVelocity(0, 0);
-    showMessage(scene, "Game over! Press R to restart.");
+    freezePlayer();
+    showMessage(scene, "GAME OVER! Press R to restart.");
   } else {
     showMessage(scene, "Snake bite! You lost a life.");
   }
