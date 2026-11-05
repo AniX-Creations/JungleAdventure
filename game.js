@@ -26,6 +26,7 @@ let messageTimer;
 
 function create() {
   createTextures(this);
+  createAnimations(this);
   createJungleBackground(this);
 
   const platforms = this.physics.add.staticGroup();
@@ -46,8 +47,8 @@ function create() {
   player.setCollideWorldBounds(true);
   player.setDepth(10);
   player.setBounce(0);
-  player.body.setSize(24, 42);
-  player.body.setOffset(4, 5);
+  player.body.setSize(22, 39);
+  player.body.setOffset(9, 10);
   this.physics.add.collider(player, platforms);
 
   const gems = this.physics.add.staticGroup();
@@ -113,6 +114,7 @@ function create() {
   }).setOrigin(1, 0.5).setDepth(5);
 
   this.physics.world.setBounds(0, 0, WORLD_WIDTH, GAME_HEIGHT);
+  player.anims.play("hero-idle");
 }
 
 function update() {
@@ -136,6 +138,14 @@ function update() {
 
   if (jumpPressed && onGround) player.setVelocityY(-480);
 
+  if (!onGround || Math.abs(player.body.velocity.y) > 30) {
+    player.anims.play("hero-jump", true);
+  } else if (Math.abs(player.body.velocity.x) > 0) {
+    player.anims.play("hero-walk", true);
+  } else {
+    player.anims.play("hero-idle", true);
+  }
+
   if (player.y > GAME_HEIGHT + 100) {
     player.setPosition(100, 430);
     player.setVelocity(0, 0);
@@ -149,20 +159,61 @@ function update() {
 }
 
 function createTextures(scene) {
-  const hero = scene.make.graphics({ x: 0, y: 0 });
-  hero.fillStyle(0x214f35);
-  hero.fillRoundedRect(5, 18, 24, 27, 7);
-  hero.fillStyle(0xf0bd8c);
-  hero.fillCircle(17, 12, 11);
-  hero.fillStyle(0x4b2d1d);
-  hero.fillRoundedRect(5, 1, 25, 8, 4);
-  hero.fillStyle(0x17251b);
-  hero.fillCircle(21, 12, 2);
-  hero.fillStyle(0x8b4d2c);
-  hero.fillRect(7, 42, 8, 6);
-  hero.fillRect(20, 42, 8, 6);
-  hero.generateTexture("hero", 36, 50);
-  hero.destroy();
+  // Four-frame explorer sprite sheet with alternating arm and leg positions.
+  const frameWidth = 40;
+  const frameHeight = 56;
+  const sheet = scene.make.graphics({ x: 0, y: 0 });
+
+  for (let frame = 0; frame < 4; frame++) {
+    const x = frame * frameWidth;
+    const swing = [-3, 2, 3, -2][frame];
+
+    sheet.fillStyle(0x9b5c2e);
+    sheet.fillRoundedRect(x + 7, 23, 10, 19, 4); // Backpack
+    sheet.fillStyle(0x246344);
+    sheet.fillRoundedRect(x + 13, 21, 19, 23, 6); // Shirt
+    sheet.fillStyle(0xf0bd8c);
+    sheet.fillCircle(x + 23, 15, 10); // Face
+    sheet.fillStyle(0x4b2d1d);
+    sheet.fillEllipse(x + 23, 8, 22, 7); // Hair
+    sheet.fillStyle(0xc28a42);
+    sheet.fillRoundedRect(x + 10, 5, 26, 5, 3); // Explorer hat
+    sheet.fillStyle(0x17251b);
+    sheet.fillCircle(x + 27, 15, 1.5); // Eye
+
+    sheet.lineStyle(5, 0xf0bd8c, 1);
+    sheet.lineBetween(x + 15, 26, x + 10 + swing, 36);
+    sheet.lineBetween(x + 29, 26, x + 34 - swing, 36);
+
+    sheet.lineStyle(6, 0x493222, 1);
+    sheet.lineBetween(x + 18, 42, x + 16 + swing, 51);
+    sheet.lineBetween(x + 27, 42, x + 28 - swing, 51);
+    sheet.fillStyle(0x30251f);
+    sheet.fillRoundedRect(x + 10 + swing, 49, 10, 5, 2);
+    sheet.fillRoundedRect(x + 23 - swing, 49, 10, 5, 2);
+  }
+
+  sheet.generateTexture("hero-walk-sheet", frameWidth * 4, frameHeight);
+  sheet.destroy();
+
+  const jump = scene.make.graphics({ x: 0, y: 0 });
+  jump.fillStyle(0x9b5c2e);
+  jump.fillRoundedRect(7, 23, 10, 19, 4);
+  jump.fillStyle(0x246344);
+  jump.fillRoundedRect(13, 21, 19, 23, 6);
+  jump.fillStyle(0xf0bd8c);
+  jump.fillCircle(23, 15, 10);
+  jump.fillStyle(0x4b2d1d);
+  jump.fillEllipse(23, 8, 22, 7);
+  jump.fillStyle(0xc28a42);
+  jump.fillRoundedRect(10, 5, 26, 5, 3);
+  jump.fillStyle(0x17251b);
+  jump.fillCircle(27, 15, 1.5);
+  jump.lineStyle(6, 0x493222, 1);
+  jump.lineBetween(18, 42, 11, 49);
+  jump.lineBetween(27, 42, 35, 47);
+  jump.generateTexture("hero-jump", 40, 56);
+  jump.destroy();
 
   const ground = scene.make.graphics({ x: 0, y: 0 });
   ground.fillStyle(0x795238);
@@ -179,6 +230,8 @@ function createTextures(scene) {
   platform.fillRoundedRect(0, 5, 128, 27, 5);
   platform.fillStyle(0x4c9a42);
   platform.fillRoundedRect(0, 0, 128, 10, 5);
+  platform.lineStyle(2, 0x2e7137, 1);
+  platform.lineBetween(8, 11, 120, 11);
   platform.generateTexture("platform", 128, 32);
   platform.destroy();
 
@@ -194,6 +247,29 @@ function createTextures(scene) {
   gem.fillTriangle(12, 3, 19, 12, 12, 12);
   gem.generateTexture("gem", 24, 24);
   gem.destroy();
+}
+
+function createAnimations(scene) {
+  scene.anims.create({
+    key: "hero-idle",
+    frames: [{ key: "hero-walk-sheet", frame: 0 }],
+    frameRate: 1,
+    repeat: -1
+  });
+
+  scene.anims.create({
+    key: "hero-walk",
+    frames: scene.anims.generateFrameNumbers("hero-walk-sheet", { start: 0, end: 3 }),
+    frameRate: 10,
+    repeat: -1
+  });
+
+  scene.anims.create({
+    key: "hero-jump",
+    frames: [{ key: "hero-jump" }],
+    frameRate: 1,
+    repeat: -1
+  });
 }
 
 function createJungleBackground(scene) {
