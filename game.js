@@ -67,17 +67,6 @@ function create() {
     snake.setDepth(22);
     snake.refreshBody();
 
-    // High-contrast warning label makes each hazard easy to spot.
-    this.add.text(x, y - 57, "SNAKE!", {
-      fontFamily: "Arial",
-      fontSize: "15px",
-      fontStyle: "bold",
-      color: "#ffffff",
-      backgroundColor: "#a51f27",
-      stroke: "#351313",
-      strokeThickness: 3,
-      padding: { x: 7, y: 4 }
-    }).setOrigin(0.5).setDepth(23);
   });
   this.physics.add.overlap(player, snakes, () => damagePlayer(this));
 
@@ -194,8 +183,11 @@ function update() {
     showMessage(this, "Back to the trail!");
   }
 
-  if (player.x > WORLD_WIDTH - 70) {
+  const atExit = player.x >= WORLD_WIDTH - 105;
+  const landedAtExit = player.body.blocked.down || player.body.touching.down;
+  if (atExit && landedAtExit) {
     levelComplete = true;
+    player.setX(WORLD_WIDTH - 90);
     freezePlayer();
     showMessage(this, "TRAIL COMPLETE! Press R to play again.");
   }
@@ -340,36 +332,57 @@ function createTextures(scene) {
   platform.generateTexture("platform", 128, 32);
   platform.destroy();
 
-  // Large bright cartoon snake with a contrasting outline and raised head.
+  // Side-view snake with a long body, raised head and clean silhouette.
   const snake = scene.make.graphics({ x: 0, y: 0 });
-  snake.fillStyle(0x17251a);
-  snake.fillEllipse(42, 44, 72, 28);
-  snake.lineStyle(16, 0x17251a, 1);
-  snake.strokeEllipse(39, 34, 51, 31);
-  snake.lineStyle(11, 0x9acb35, 1);
-  snake.strokeEllipse(39, 34, 51, 31);
-  snake.lineStyle(13, 0x2e9b50, 1);
-  snake.lineBetween(54, 32, 66, 16);
-  snake.fillStyle(0x17251a);
-  snake.fillRoundedRect(60, 5, 31, 23, 7);
-  snake.fillStyle(0x2e9b50);
-  snake.fillRoundedRect(63, 7, 26, 18, 6);
-  snake.fillStyle(0xf5e76a);
-  snake.fillRect(79, 11, 7, 7);
-  snake.fillStyle(0x101710);
-  snake.fillRect(82, 12, 3, 5);
-  snake.fillStyle(0xf5e76a);
-  snake.fillRect(68, 14, 5, 5);
-  snake.fillStyle(0xe84c45);
-  snake.fillRect(87, 22, 9, 3);
-  snake.fillRect(94, 22, 3, 6);
-  snake.fillRect(94, 22, 3, -4);
-  // Bright dorsal spots.
-  snake.fillStyle(0xd4e85a);
-  snake.fillRect(25, 28, 6, 4);
-  snake.fillRect(39, 25, 6, 4);
-  snake.fillRect(51, 29, 6, 4);
-  snake.generateTexture("snake", 100, 64);
+  snake.fillStyle(0x173b29, 0.25);
+  snake.fillEllipse(48, 55, 88, 10);
+  snake.lineStyle(17, 0x173d2c, 1);
+  snake.beginPath();
+  snake.moveTo(8, 43);
+  snake.lineTo(22, 34);
+  snake.lineTo(39, 39);
+  snake.lineTo(54, 32);
+  snake.lineTo(67, 35);
+  snake.strokePath();
+  snake.lineStyle(11, 0x398d4c, 1);
+  snake.beginPath();
+  snake.moveTo(8, 41);
+  snake.lineTo(22, 34);
+  snake.lineTo(39, 39);
+  snake.lineTo(54, 32);
+  snake.lineTo(67, 35);
+  snake.strokePath();
+  snake.lineStyle(4, 0xb6d66a, 1);
+  snake.beginPath();
+  snake.moveTo(12, 44);
+  snake.lineTo(24, 39);
+  snake.lineTo(39, 43);
+  snake.lineTo(54, 37);
+  snake.lineTo(66, 39);
+  snake.strokePath();
+  snake.lineStyle(14, 0x173d2c, 1);
+  snake.lineBetween(63, 35, 73, 20);
+  snake.lineStyle(9, 0x398d4c, 1);
+  snake.lineBetween(63, 34, 73, 20);
+  snake.fillStyle(0x173d2c);
+  snake.fillEllipse(77, 17, 29, 20);
+  snake.fillStyle(0x55a957);
+  snake.fillEllipse(77, 15, 24, 15);
+  snake.fillStyle(0xf4e477);
+  snake.fillCircle(82, 12, 3.5);
+  snake.fillStyle(0x172319);
+  snake.fillCircle(83, 12, 1.7);
+  snake.lineStyle(2, 0x253d24, 1);
+  snake.lineBetween(82, 21, 91, 21);
+  snake.lineStyle(2, 0xd94c46, 1);
+  snake.lineBetween(90, 21, 97, 24);
+  snake.lineBetween(97, 24, 100, 22);
+  snake.lineBetween(97, 24, 100, 27);
+  snake.fillStyle(0xb7d86a);
+  snake.fillCircle(24, 31, 2);
+  snake.fillCircle(42, 35, 2);
+  snake.fillCircle(57, 29, 2);
+  snake.generateTexture("snake", 104, 64);
   snake.destroy();
 
   const gem = scene.make.graphics({ x: 0, y: 0 });
