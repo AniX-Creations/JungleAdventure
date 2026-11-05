@@ -4,10 +4,12 @@ const WORLD_WIDTH = 2800;
 
 const config = {
   type: Phaser.AUTO,
+  pixelArt: true,
+  roundPixels: true,
   parent: "game-container",
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
-  backgroundColor: "#8ed5c0",
+  backgroundColor: "#5bb8a0",
   physics: {
     default: "arcade",
     arcade: { gravity: { y: 1000 }, debug: false }
@@ -226,51 +228,47 @@ function update() {
 }
 
 function createTextures(scene) {
-  // Rounded cartoon explorer sprite sheet, with consistent proportions in every pose.
+  // Deliberate 16-bit pixel-art palette and hard-edged shapes.
   const fw = 64, fh = 80;
   const g = scene.make.graphics({ x: 0, y: 0 });
-  const swing = [-3, -1, 3, 1];
-
+  const swing = [0, 3, 0, -3];
   for (let i = 0; i < 4; i++) {
     const x = i * fw, s = swing[i];
-    // Soft shadow.
-    g.fillStyle(0x153b25, 0.22); g.fillEllipse(x + 32, 75, 34, 7);
-    // Backpack and rolled bedroll.
-    g.fillStyle(0x573a25); g.fillRoundedRect(x + 9, 32, 17, 29, 6);
-    g.fillStyle(0x9a6336); g.fillRoundedRect(x + 11, 34, 13, 23, 4);
-    g.fillStyle(0xd5a45c); g.fillRoundedRect(x + 12, 43, 11, 8, 2);
-    g.fillStyle(0xddd0a0); g.fillRoundedRect(x + 10, 27, 16, 7, 3);
-    // Legs and hiking boots.
-    g.fillStyle(0x344c3b); g.fillRoundedRect(x + 23 + s, 49, 10, 17, 4);
-    g.fillStyle(0x405b43); g.fillRoundedRect(x + 34 - s, 49, 10, 17, 4);
-    g.fillStyle(0x513725); g.fillRoundedRect(x + 19 + s, 64, 16, 8, 3);
-    g.fillRoundedRect(x + 32 - s, 64, 16, 8, 3);
-    g.fillStyle(0xc08a4c); g.fillRect(x + 22 + s, 66, 8, 2); g.fillRect(x + 35 - s, 66, 8, 2);
-    // Shirt and belt.
-    g.fillStyle(0x174b35); g.fillRoundedRect(x + 20, 28, 27, 27, 8);
-    g.fillStyle(0x38865a); g.fillRoundedRect(x + 23, 30, 21, 20, 6);
-    g.fillStyle(0xe0c27b); g.fillRect(x + 32, 32, 2, 15);
-    g.fillStyle(0x6c492d); g.fillRoundedRect(x + 23, 51, 22, 5, 2);
-    // Arms swing opposite the legs.
-    g.fillStyle(0x246344); g.fillRoundedRect(x + 14, 31, 11, 16, 5); g.fillRoundedRect(x + 42, 31, 11, 16, 5);
+    // Shadow, backpack and bedroll.
+    g.fillStyle(0x172b24); g.fillRect(x + 15, 72, 35, 4);
+    g.fillStyle(0x49301f); g.fillRect(x + 8, 34, 17, 27);
+    g.fillStyle(0x9b6336); g.fillRect(x + 11, 37, 11, 19);
+    g.fillStyle(0xd7a85c); g.fillRect(x + 12, 43, 9, 6);
+    g.fillStyle(0xe4c985); g.fillRect(x + 8, 29, 17, 6);
+    // Boots and legs, animated by a few pixels per frame.
+    g.fillStyle(0x263d32); g.fillRect(x + 23 + s, 51, 10, 16);
+    g.fillRect(x + 36 - s, 51, 9, 16);
+    g.fillStyle(0x593b26); g.fillRect(x + 18 + s, 65, 17, 8);
+    g.fillRect(x + 34 - s, 65, 16, 8);
+    g.fillStyle(0xd5a65e); g.fillRect(x + 22 + s, 66, 9, 2);
+    g.fillRect(x + 38 - s, 66, 8, 2);
+    // Green tunic, belt and arm pixels.
+    g.fillStyle(0x17452f); g.fillRect(x + 19, 29, 29, 27);
+    g.fillStyle(0x3f9651); g.fillRect(x + 23, 31, 21, 19);
+    g.fillStyle(0x8dc45b); g.fillRect(x + 25, 33, 5, 3);
+    g.fillStyle(0x6b4728); g.fillRect(x + 22, 51, 25, 5);
+    g.fillStyle(0xf0cf7a); g.fillRect(x + 33, 52, 5, 4);
+    g.fillStyle(0x17452f); g.fillRect(x + 13, 32, 10, 17); g.fillRect(x + 44, 32, 10, 17);
     g.fillStyle(0xd99b70);
-    g.lineStyle(7, 0xd99b70, 1);
-    g.lineBetween(x + 19, 42, x + 17 + s, 55);
-    g.lineBetween(x + 48, 42, x + 48 - s, 55);
-    g.fillCircle(x + 17 + s, 56, 4); g.fillCircle(x + 48 - s, 56, 4);
-    // Neck and expressive face.
-    g.fillStyle(0xb87952); g.fillRoundedRect(x + 29, 23, 10, 10, 3);
-    g.fillStyle(0xdda47d); g.fillEllipse(x + 34, 18, 24, 27);
-    g.fillStyle(0x633c29); g.fillEllipse(x + 34, 8, 25, 15);
-    g.fillStyle(0x633c29); g.fillEllipse(x + 23, 15, 7, 13);
-    g.fillStyle(0x29231d); g.fillCircle(x + 40, 18, 1.8);
-    g.fillStyle(0xffffff); g.fillCircle(x + 40.5, 17.5, 0.7);
-    g.lineStyle(1.5, 0x8c4e3c, 1); g.lineBetween(x + 39, 25, x + 43, 25);
-    // Soft safari hat.
-    g.fillStyle(0x79552f); g.fillEllipse(x + 34, 11, 36, 9);
-    g.fillStyle(0xc69b5b); g.fillEllipse(x + 34, 6, 24, 11);
-    g.fillStyle(0xe5c783); g.fillRect(x + 23, 9, 22, 2);
-    g.fillStyle(0x77502d); g.fillRect(x + 31, 4, 6, 3);
+    g.fillRect(x + 14, 47, 8, 10 + Math.max(0, s));
+    g.fillRect(x + 45, 47, 8, 10 + Math.max(0, -s));
+    // Face, hair and wide-brim explorer hat.
+    g.fillStyle(0x8e5538); g.fillRect(x + 25, 14, 21, 17);
+    g.fillStyle(0xe0a477); g.fillRect(x + 27, 16, 17, 14);
+    g.fillStyle(0x5a3526); g.fillRect(x + 24, 12, 23, 8);
+    g.fillRect(x + 22, 17, 5, 10);
+    g.fillStyle(0x211d19); g.fillRect(x + 39, 21, 3, 3);
+    g.fillStyle(0xffffff); g.fillRect(x + 40, 21, 1, 1);
+    g.fillStyle(0x9a553d); g.fillRect(x + 38, 27, 5, 2);
+    g.fillStyle(0x5d4028); g.fillRect(x + 17, 12, 42, 5);
+    g.fillStyle(0x9a713c); g.fillRect(x + 25, 5, 27, 9);
+    g.fillStyle(0xe1bd70); g.fillRect(x + 27, 8, 23, 2);
+    g.fillStyle(0x644326); g.fillRect(x + 36, 5, 7, 3);
   }
   g.generateTexture("hero-walk-sheet", fw * 4, fh);
   const tex = scene.textures.get("hero-walk-sheet");
@@ -278,77 +276,78 @@ function createTextures(scene) {
   g.destroy();
 
   const jump = scene.make.graphics({ x: 0, y: 0 });
-  jump.fillStyle(0x573a25); jump.fillRoundedRect(8, 34, 17, 27, 6);
-  jump.fillStyle(0x9a6336); jump.fillRoundedRect(11, 36, 13, 21, 4);
-  jump.fillStyle(0x174b35); jump.fillRoundedRect(20, 28, 27, 27, 8);
-  jump.fillStyle(0x38865a); jump.fillRoundedRect(23, 30, 21, 20, 6);
-  jump.fillStyle(0x344c3b); jump.fillRoundedRect(22, 51, 11, 13, 4); jump.fillRoundedRect(35, 49, 11, 13, 4);
-  jump.fillStyle(0x513725); jump.fillRoundedRect(10, 61, 17, 8, 3); jump.fillRoundedRect(40, 59, 15, 8, 3);
-  jump.fillStyle(0xd99b70); jump.lineStyle(7, 0xd99b70, 1);
-  jump.lineBetween(19, 42, 8, 29); jump.lineBetween(48, 41, 57, 27);
-  jump.fillStyle(0xdda47d); jump.fillEllipse(34, 18, 24, 27);
-  jump.fillStyle(0x633c29); jump.fillEllipse(34, 8, 25, 15);
-  jump.fillStyle(0x29231d); jump.fillCircle(40, 18, 1.8);
-  jump.fillStyle(0x79552f); jump.fillEllipse(34, 11, 36, 9);
-  jump.fillStyle(0xc69b5b); jump.fillEllipse(34, 6, 24, 11);
+  jump.fillStyle(0x49301f); jump.fillRect(8, 34, 17, 27);
+  jump.fillStyle(0x9b6336); jump.fillRect(11, 37, 11, 19);
+  jump.fillStyle(0x17452f); jump.fillRect(19, 29, 29, 27);
+  jump.fillStyle(0x3f9651); jump.fillRect(23, 32, 21, 18);
+  jump.fillStyle(0x263d32); jump.fillRect(21, 52, 12, 13); jump.fillRect(36, 50, 10, 13);
+  jump.fillStyle(0x593b26); jump.fillRect(10, 63, 18, 9); jump.fillRect(40, 61, 16, 9);
+  jump.fillStyle(0xd99b70); jump.fillRect(7, 29, 9, 14); jump.fillRect(49, 27, 9, 14);
+  jump.fillStyle(0xe0a477); jump.fillRect(27, 16, 17, 14);
+  jump.fillStyle(0x5a3526); jump.fillRect(24, 12, 23, 8);
+  jump.fillStyle(0x211d19); jump.fillRect(39, 21, 3, 3);
+  jump.fillStyle(0x5d4028); jump.fillRect(17, 12, 42, 5);
+  jump.fillStyle(0x9a713c); jump.fillRect(25, 5, 27, 9);
   jump.generateTexture("hero-jump", 64, 80); jump.destroy();
 
-  // Richer hand-painted-looking ground and wooden platforms.
   const ground = scene.make.graphics({ x: 0, y: 0 });
-  ground.fillStyle(0x765039); ground.fillRect(0, 0, 64, 32);
-  ground.fillStyle(0x347c3d); ground.fillRect(0, 0, 64, 10);
-  ground.fillStyle(0x75b94d); ground.fillRect(0, 0, 64, 4);
-  ground.lineStyle(2, 0x4a3527, 0.7);
-  for (let x = 8; x < 64; x += 18) ground.lineBetween(x, 13, x - 4, 29);
+  ground.fillStyle(0x69432d); ground.fillRect(0, 0, 64, 32);
+  ground.fillStyle(0x27683a); ground.fillRect(0, 0, 64, 9);
+  ground.fillStyle(0x79b94c); ground.fillRect(0, 0, 64, 4);
+  ground.fillStyle(0x3d7d3c);
+  for (let x = 2; x < 64; x += 12) ground.fillRect(x, 5, 5, 5);
+  ground.fillStyle(0x9a7045);
+  for (let x = 5; x < 64; x += 17) ground.fillRect(x, 15 + (x % 3) * 3, 7, 3);
+  ground.fillStyle(0x3e2d25);
+  for (let x = 9; x < 64; x += 21) ground.fillRect(x, 25, 3, 4);
   ground.generateTexture("ground", 64, 32); ground.destroy();
 
   const platform = scene.make.graphics({ x: 0, y: 0 });
-  platform.fillStyle(0x4b3020); platform.fillRoundedRect(0, 6, 128, 26, 5);
-  platform.fillStyle(0x9a693d); platform.fillRoundedRect(0, 1, 128, 14, 5);
-  platform.fillStyle(0x5b9b43); platform.fillRoundedRect(0, 0, 128, 7, 4);
-  platform.lineStyle(2, 0xd0a36a, 0.8);
-  platform.lineBetween(8, 9, 120, 9);
-  platform.fillStyle(0x563923); platform.fillCircle(12, 19, 2); platform.fillCircle(116, 19, 2);
+  platform.fillStyle(0x38271f); platform.fillRect(0, 7, 128, 25);
+  platform.fillStyle(0x80502c); platform.fillRect(0, 2, 128, 14);
+  platform.fillStyle(0xb47a3e); platform.fillRect(4, 3, 120, 5);
+  platform.fillStyle(0x3b7a3a); platform.fillRect(0, 0, 128, 7);
+  platform.fillStyle(0x83bb4e);
+  for (let x = 5; x < 128; x += 19) platform.fillRect(x, 0, 9, 3);
+  platform.fillStyle(0xd19a52);
+  for (let x = 12; x < 120; x += 28) platform.fillRect(x, 12, 14, 3);
+  platform.fillStyle(0x39251c); platform.fillRect(12, 21, 4, 4); platform.fillRect(112, 21, 4, 4);
   platform.generateTexture("platform", 128, 32); platform.destroy();
 
   const beetle = scene.make.graphics({ x: 0, y: 0 });
-  beetle.fillStyle(0x172d20); beetle.fillEllipse(25, 24, 43, 18);
-  beetle.fillStyle(0x2d773f); beetle.fillEllipse(24, 20, 37, 16);
-  beetle.fillStyle(0x62b84f); beetle.fillEllipse(25, 15, 24, 13);
-  beetle.lineStyle(2, 0x1c512f, 1); beetle.lineBetween(25, 9, 25, 22);
-  beetle.fillStyle(0x4b3424); beetle.fillCircle(43, 18, 7);
-  beetle.fillStyle(0xf2e477); beetle.fillCircle(45, 16, 2);
-  beetle.lineStyle(3, 0x493323, 1);
-  beetle.lineBetween(12, 24, 7, 30); beetle.lineBetween(23, 25, 21, 31);
-  beetle.lineBetween(34, 24, 39, 30); beetle.lineBetween(43, 22, 49, 28);
-  beetle.generateTexture("beetle", 56, 34); beetle.destroy();
+  beetle.fillStyle(0x17251c); beetle.fillRect(7, 18, 40, 12);
+  beetle.fillStyle(0x246b35); beetle.fillRect(9, 12, 34, 16);
+  beetle.fillStyle(0x55a943); beetle.fillRect(13, 8, 25, 12);
+  beetle.fillStyle(0x8bc84b); beetle.fillRect(17, 9, 13, 4);
+  beetle.fillStyle(0x17251c); beetle.fillRect(39, 14, 12, 10);
+  beetle.fillStyle(0xffe36b); beetle.fillRect(45, 15, 3, 3);
+  beetle.fillStyle(0x392b20);
+  beetle.fillRect(9, 27, 4, 7); beetle.fillRect(21, 27, 4, 7);
+  beetle.fillRect(34, 27, 4, 7); beetle.fillRect(44, 24, 4, 8);
+  beetle.generateTexture("beetle", 56, 36); beetle.destroy();
 
   const snake = scene.make.graphics({ x: 0, y: 0 });
-  snake.fillStyle(0x173b29, 0.25); snake.fillEllipse(48, 55, 88, 10);
-  snake.lineStyle(17, 0x173d2c, 1); snake.beginPath();
-  snake.moveTo(8, 43); snake.lineTo(22, 34); snake.lineTo(39, 39); snake.lineTo(54, 32); snake.lineTo(67, 35); snake.strokePath();
-  snake.lineStyle(11, 0x398d4c, 1); snake.beginPath();
-  snake.moveTo(8, 41); snake.lineTo(22, 34); snake.lineTo(39, 39); snake.lineTo(54, 32); snake.lineTo(67, 35); snake.strokePath();
-  snake.lineStyle(4, 0xb6d66a, 1); snake.beginPath();
-  snake.moveTo(12, 44); snake.lineTo(24, 39); snake.lineTo(39, 43); snake.lineTo(54, 37); snake.lineTo(66, 39); snake.strokePath();
-  snake.lineStyle(14, 0x173d2c, 1); snake.lineBetween(63, 35, 73, 20);
-  snake.lineStyle(9, 0x398d4c, 1); snake.lineBetween(63, 34, 73, 20);
-  snake.fillStyle(0x173d2c); snake.fillEllipse(77, 17, 29, 20);
-  snake.fillStyle(0x55a957); snake.fillEllipse(77, 15, 24, 15);
-  snake.fillStyle(0xf4e477); snake.fillCircle(82, 12, 3.5);
-  snake.fillStyle(0x172319); snake.fillCircle(83, 12, 1.7);
-  snake.lineStyle(2, 0xd94c46, 1); snake.lineBetween(90, 21, 97, 24);
-  snake.lineBetween(97, 24, 100, 22); snake.lineBetween(97, 24, 100, 27);
-  snake.fillStyle(0xb7d86a); snake.fillCircle(24, 31, 2); snake.fillCircle(42, 35, 2); snake.fillCircle(57, 29, 2);
-  snake.generateTexture("snake", 104, 64); snake.destroy();
+  snake.fillStyle(0x183522); snake.fillRect(5, 37, 66, 12);
+  snake.fillRect(17, 28, 13, 18); snake.fillRect(38, 30, 13, 17);
+  snake.fillStyle(0x398b43); snake.fillRect(7, 34, 61, 10);
+  snake.fillRect(20, 26, 9, 16); snake.fillRect(41, 28, 9, 15);
+  snake.fillStyle(0x9bc95a); snake.fillRect(11, 35, 12, 3); snake.fillRect(34, 35, 11, 3);
+  snake.fillStyle(0x183522); snake.fillRect(62, 17, 13, 23); snake.fillRect(68, 12, 28, 17);
+  snake.fillStyle(0x4ca34d); snake.fillRect(66, 18, 11, 18); snake.fillRect(72, 14, 21, 12);
+  snake.fillStyle(0xffe56b); snake.fillRect(84, 16, 4, 4);
+  snake.fillStyle(0x172319); snake.fillRect(86, 17, 2, 2);
+  snake.fillStyle(0xe74f46); snake.fillRect(92, 24, 8, 2);
+  snake.fillRect(98, 23, 2, 4);
+  snake.generateTexture("snake", 104, 52); snake.destroy();
 
   const gem = scene.make.graphics({ x: 0, y: 0 });
-  gem.fillStyle(0xffdf59);
-  gem.fillPoints([new Phaser.Geom.Point(12, 0), new Phaser.Geom.Point(24, 12), new Phaser.Geom.Point(12, 24), new Phaser.Geom.Point(0, 12)], true);
-  gem.fillStyle(0xfff4b0); gem.fillTriangle(12, 3, 19, 12, 12, 12);
+  gem.fillStyle(0x9b4de0); gem.fillRect(7, 0, 10, 4);
+  gem.fillRect(3, 4, 18, 4); gem.fillRect(0, 8, 24, 9);
+  gem.fillRect(4, 17, 16, 4); gem.fillRect(8, 21, 8, 3);
+  gem.fillStyle(0xe6b7ff); gem.fillRect(5, 5, 5, 8);
+  gem.fillStyle(0x7133b4); gem.fillRect(15, 10, 5, 8);
   gem.generateTexture("gem", 24, 24); gem.destroy();
 }
-
 function createAnimations(scene) {
   scene.anims.create({
     key: "hero-idle",
@@ -373,56 +372,63 @@ function createAnimations(scene) {
 }
 
 function createJungleBackground(scene) {
-  // Layered tropical sky with distant mountain silhouettes.
-  scene.add.rectangle(WORLD_WIDTH / 2, 270, WORLD_WIDTH, 540, 0x9bdccf).setScrollFactor(0.08).setDepth(-30);
-  scene.add.circle(760, 105, 48, 0xffe6a0, 0.9).setScrollFactor(0.12).setDepth(-28);
-  for (let x = -150; x < WORLD_WIDTH + 400; x += 650) {
-    scene.add.ellipse(x + 180, 380, 650, 210, 0x8acb9b).setScrollFactor(0.16).setDepth(-25);
-    scene.add.ellipse(x + 470, 395, 590, 190, 0x69b484).setScrollFactor(0.2).setDepth(-24);
-    // Distant palms and broadleaf silhouettes.
-    scene.add.rectangle(x + 180, 310, 17, 210, 0x648c5a).setScrollFactor(0.28).setDepth(-20);
-    scene.add.ellipse(x + 180, 210, 155, 75, 0x4c9a68).setScrollFactor(0.28).setDepth(-20);
+  // A deep, layered 16-bit jungle with pixel-step silhouettes and bright canopy gaps.
+  scene.add.rectangle(WORLD_WIDTH / 2, 270, WORLD_WIDTH, 540, 0x5bb8a0).setScrollFactor(0.06).setDepth(-40);
+  scene.add.rectangle(WORLD_WIDTH / 2, 270, WORLD_WIDTH, 210, 0x7bd0b0, 0.55).setScrollFactor(0.08).setDepth(-39);
+  scene.add.rectangle(760, 94, 72, 54, 0xffdf82).setScrollFactor(0.1).setDepth(-35);
+  scene.add.rectangle(760, 94, 94, 22, 0xffedaa).setScrollFactor(0.1).setDepth(-34);
+
+  // Distant jungle ridges.
+  for (let x = -100; x < WORLD_WIDTH + 400; x += 420) {
+    scene.add.triangle(x + 180, 365, -220, 110, 0, -90, 230, 110, 0x3f9875).setScrollFactor(0.14).setDepth(-30);
+    scene.add.triangle(x + 340, 385, -190, 90, 0, -65, 200, 90, 0x287c62).setScrollFactor(0.18).setDepth(-29);
+    scene.add.rectangle(x + 175, 315, 22, 220, 0x397e58).setScrollFactor(0.22).setDepth(-25);
+    for (let leaf = 0; leaf < 5; leaf++) {
+      scene.add.rectangle(x + 130 + leaf * 23, 205 + (leaf % 2) * 15, 42, 18, leaf % 2 ? 0x347f54 : 0x4da06a)
+        .setAngle((leaf % 2 ? 1 : -1) * 18).setScrollFactor(0.22).setDepth(-24);
+    }
   }
 
-  // Midground tree trunks, layered canopies and hanging vines.
-  for (let x = 0; x < WORLD_WIDTH + 260; x += 250) {
-    const shift = (Math.floor(x / 250) % 3) * 24;
-    scene.add.rectangle(x + 65, 342, 42, 390, 0x765039).setScrollFactor(0.58).setDepth(-8);
-    scene.add.rectangle(x + 52, 340, 8, 350, 0x9a7048).setScrollFactor(0.58).setDepth(-7);
-    scene.add.ellipse(x + 65, 205 + shift, 220, 155, 0x246b3d).setScrollFactor(0.58).setDepth(-6);
-    scene.add.ellipse(x + 5, 245 + shift, 145, 120, 0x34864a).setScrollFactor(0.58).setDepth(-5);
-    scene.add.ellipse(x + 122, 245 + shift, 155, 125, 0x3c9650).setScrollFactor(0.58).setDepth(-5);
-    scene.add.ellipse(x + 63, 160 + shift, 130, 100, 0x55a957).setScrollFactor(0.58).setDepth(-5);
-    // Highlights on the canopy.
-    scene.add.ellipse(x + 25, 218 + shift, 54, 25, 0x78bd5c, 0.75).setScrollFactor(0.58).setDepth(-4).setAngle(-25);
+  // Midground trunks and blocky layered canopy clusters.
+  for (let x = 0; x < WORLD_WIDTH + 300; x += 250) {
+    const shift = (Math.floor(x / 250) % 3) * 17;
+    scene.add.rectangle(x + 60, 345, 38, 390, 0x60402b).setScrollFactor(0.5).setDepth(-15);
+    scene.add.rectangle(x + 52, 340, 8, 350, 0x98653b).setScrollFactor(0.5).setDepth(-14);
+    scene.add.rectangle(x + 60, 183 + shift, 104, 38, 0x175b3c).setScrollFactor(0.5).setDepth(-13);
+    scene.add.rectangle(x + 22, 211 + shift, 72, 38, 0x247747).setScrollFactor(0.5).setDepth(-12);
+    scene.add.rectangle(x + 98, 216 + shift, 78, 42, 0x2f8b4b).setScrollFactor(0.5).setDepth(-12);
+    scene.add.rectangle(x + 58, 145 + shift, 66, 42, 0x3b9c52).setScrollFactor(0.5).setDepth(-11);
+    scene.add.rectangle(x + 32, 185 + shift, 24, 12, 0x70bd57).setScrollFactor(0.5).setDepth(-10);
+    scene.add.rectangle(x + 100, 194 + shift, 30, 12, 0x70bd57).setScrollFactor(0.5).setDepth(-10);
     if (Math.floor(x / 250) % 2 === 0) {
-      scene.add.rectangle(x + 148, 300, 5, 160, 0x347a43).setScrollFactor(0.58).setDepth(-3);
-      for (let v = 0; v < 5; v++) scene.add.ellipse(x + 148 + (v % 2 ? 7 : -7), 345 + v * 19, 15, 8, v % 2 ? 0x79bf58 : 0x4e9e4d).setScrollFactor(0.58).setDepth(-2).setAngle(v % 2 ? 35 : -35);
+      scene.add.rectangle(x + 150, 290, 5, 150, 0x286d43).setScrollFactor(0.5).setDepth(-9);
+      for (let v = 0; v < 5; v++) {
+        scene.add.rectangle(x + 143 + (v % 2) * 13, 330 + v * 19, 15, 7, v % 2 ? 0x76b94e : 0x4c9d49)
+          .setScrollFactor(0.5).setDepth(-8).setAngle(v % 2 ? 28 : -28);
+      }
     }
   }
 
-  // Near-ground bushes and ferns decorate the scene edges without obscuring play.
-  for (let x = 40; x < WORLD_WIDTH + 200; x += 300) {
-    scene.add.ellipse(x, 488, 145, 45, 0x1e6338).setDepth(3);
-    scene.add.ellipse(x + 42, 480, 105, 38, 0x328346).setDepth(3);
-    scene.add.ellipse(x + 86, 491, 100, 35, 0x4b9b4b).setDepth(3);
-    // Fern fronds.
-    for (let f = 0; f < 4; f++) {
-      const fx = x + 135 + f * 7;
-      scene.add.line(fx, 503, 0, 0, (f - 1.5) * 13, -26 - (f % 2) * 8, 0x80bd55).setLineWidth(3).setDepth(4);
-      scene.add.ellipse(fx + (f - 1.5) * 7, 481 - (f % 2) * 8, 17, 7, 0x8ac75d).setDepth(4).setAngle((f - 1.5) * 20);
+  // Foreground ferns and stepped bushes frame the play area.
+  for (let x = 30; x < WORLD_WIDTH + 200; x += 300) {
+    scene.add.rectangle(x, 492, 110, 28, 0x155d37).setDepth(3);
+    scene.add.rectangle(x + 24, 480, 76, 25, 0x237a40).setDepth(3);
+    scene.add.rectangle(x + 61, 491, 90, 23, 0x32934a).setDepth(3);
+    for (let f = 0; f < 5; f++) {
+      const fx = x + 112 + f * 7;
+      scene.add.line(fx, 504, 0, 0, (f - 2) * 13, -27 - (f % 2) * 8, 0x8ac85a).setLineWidth(4).setDepth(4);
+      scene.add.rectangle(fx + (f - 2) * 5, 480 - (f % 2) * 8, 13, 5, 0x9bd45d).setDepth(4).setAngle((f - 2) * 18);
     }
   }
 
-  // Floating pollen motes add atmosphere.
-  for (let i = 0; i < 28; i++) {
+  // Floating fireflies.
+  for (let i = 0; i < 24; i++) {
     const px = (i * 173) % WORLD_WIDTH;
-    const py = 115 + (i * 47) % 285;
-    const mote = scene.add.circle(px, py, 2 + (i % 2), 0xfff0a6, 0.65).setDepth(-1);
-    scene.tweens.add({ targets: mote, y: py - 14, alpha: 0.2, duration: 1800 + (i % 5) * 300, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
+    const py = 105 + (i * 47) % 285;
+    const mote = scene.add.rectangle(px, py, 4, 4, 0xffed83).setDepth(-1);
+    scene.tweens.add({ targets: mote, y: py - 13, alpha: 0.2, duration: 1400 + (i % 5) * 250, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
   }
 }
-
 function freezePlayer() {
   if (!player || !player.body) return;
   player.setVelocity(0, 0);
