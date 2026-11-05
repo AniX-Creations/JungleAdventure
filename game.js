@@ -59,6 +59,38 @@ function create() {
   player.body.setOffset(12, 18);
   this.physics.add.collider(player, platforms);
 
+  // Moving platforms add a timing challenge between the fixed platforms.
+  const movingPlatforms = this.physics.add.group({ allowGravity: false, immovable: true });
+  [[455, 300, 70], [1460, 285, 65], [2260, 300, 75]].forEach(([x, y, travel]) => {
+    const moving = movingPlatforms.create(x, y, "platform");
+    moving.setImmovable(true);
+    moving.body.allowGravity = false;
+    moving.setDepth(8);
+    this.tweens.add({
+      targets: moving,
+      y: y - travel,
+      duration: 1900,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut"
+    });
+  });
+  this.physics.add.collider(player, movingPlatforms);
+
+  // Beetles patrol the forest floor. Touching one costs a life.
+  const beetles = this.physics.add.group({ allowGravity: true });
+  [[940, 490], [1510, 490], [2020, 490]].forEach(([x, y], index) => {
+    const beetle = beetles.create(x, y, "beetle");
+    beetle.setDepth(9);
+    beetle.setCollideWorldBounds(true);
+    beetle.setBounceX(1);
+    beetle.setVelocityX(index % 2 === 0 ? 75 : -75);
+    beetle.body.setSize(34, 22);
+  });
+  this.physics.add.collider(beetles, platforms);
+  this.physics.add.collider(beetles, movingPlatforms);
+  this.physics.add.overlap(player, beetles, () => damagePlayer(this));
+
   // Snakes guard parts of the trail. Touching one costs a life.
   const snakes = this.physics.add.staticGroup();
   [[690, 478], [1190, 478], [1740, 478], [2240, 478]].forEach(([x, y]) => {
@@ -331,6 +363,28 @@ function createTextures(scene) {
   platform.lineBetween(8, 11, 120, 11);
   platform.generateTexture("platform", 128, 32);
   platform.destroy();
+
+  // Small bright beetle enemy with a shell, head and tiny legs.
+  const beetle = scene.make.graphics({ x: 0, y: 0 });
+  beetle.fillStyle(0x172d20);
+  beetle.fillEllipse(25, 24, 43, 18);
+  beetle.fillStyle(0x2d773f);
+  beetle.fillEllipse(24, 20, 37, 16);
+  beetle.fillStyle(0x62b84f);
+  beetle.fillEllipse(25, 15, 24, 13);
+  beetle.lineStyle(2, 0x1c512f, 1);
+  beetle.lineBetween(25, 9, 25, 22);
+  beetle.fillStyle(0x4b3424);
+  beetle.fillCircle(43, 18, 7);
+  beetle.fillStyle(0xf2e477);
+  beetle.fillCircle(45, 16, 2);
+  beetle.lineStyle(3, 0x493323, 1);
+  beetle.lineBetween(12, 24, 7, 30);
+  beetle.lineBetween(23, 25, 21, 31);
+  beetle.lineBetween(34, 24, 39, 30);
+  beetle.lineBetween(43, 22, 49, 28);
+  beetle.generateTexture("beetle", 56, 34);
+  beetle.destroy();
 
   // Side-view snake with a long body, raised head and clean silhouette.
   const snake = scene.make.graphics({ x: 0, y: 0 });
