@@ -194,6 +194,10 @@ function createTextures(scene) {
   }
 
   sheet.generateTexture("hero-walk-sheet", frameWidth * 4, frameHeight);
+  const walkTexture = scene.textures.get("hero-walk-sheet");
+  for (let frame = 1; frame < 4; frame++) {
+    walkTexture.add(frame, 0, frame * frameWidth, 0, frameWidth, frameHeight);
+  }
   sheet.destroy();
 
   const jump = scene.make.graphics({ x: 0, y: 0 });
