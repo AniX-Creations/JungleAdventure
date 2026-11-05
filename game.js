@@ -66,7 +66,7 @@ function create() {
     snake.setScale(1.25);
     snake.setDepth(22);
     snake.refreshBody();
-
+    this.tweens.add({ targets: snake, angle: { from: -4, to: 4 }, duration: 700, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
   });
   this.physics.add.overlap(player, snakes, () => damagePlayer(this));
 
@@ -189,7 +189,7 @@ function update() {
     levelComplete = true;
     player.setX(WORLD_WIDTH - 90);
     freezePlayer();
-    showMessage(this, "TRAIL COMPLETE! Press R to play again.");
+    showEndScreen(this, "TRAIL COMPLETE!", "You made it through the jungle!", "PLAY AGAIN");
   }
 }
 
@@ -507,10 +507,36 @@ function damagePlayer(scene) {
   if (lives <= 0) {
     levelComplete = true;
     freezePlayer();
-    showMessage(scene, "GAME OVER! Press R to restart.");
+    showEndScreen(scene, "GAME OVER", "The jungle trail was tough. Give it another try!", "TRY AGAIN");
   } else {
     showMessage(scene, "Snake bite! You lost a life.");
   }
+}
+
+
+function showEndScreen(scene, title, subtitle, buttonLabel) {
+  scene.add.rectangle(480, 270, 960, 540, 0x071b12, 0.78).setScrollFactor(0).setDepth(100);
+  scene.add.rectangle(480, 270, 440, 280, 0x173b2b).setStrokeStyle(4, 0xa8d66d).setScrollFactor(0).setDepth(101);
+  scene.add.text(480, 166, title, {
+    fontFamily: "Arial", fontSize: title === "GAME OVER" ? "34px" : "30px",
+    fontStyle: "bold", color: title === "GAME OVER" ? "#ffd2bd" : "#f3f5b5"
+  }).setOrigin(0.5).setScrollFactor(0).setDepth(102);
+  scene.add.text(480, 215, subtitle, {
+    fontFamily: "Arial", fontSize: "16px", color: "#e5f0df",
+    align: "center", wordWrap: { width: 370 }
+  }).setOrigin(0.5).setScrollFactor(0).setDepth(102);
+  scene.add.text(480, 260, "Gems collected: " + score + "     Lives left: " + lives, {
+    fontFamily: "Arial", fontSize: "16px", fontStyle: "bold", color: "#f6e7a6"
+  }).setOrigin(0.5).setScrollFactor(0).setDepth(102);
+  const button = scene.add.rectangle(480, 326, 210, 48, 0x79a947)
+    .setStrokeStyle(2, 0xd8ef9b).setScrollFactor(0).setDepth(102)
+    .setInteractive({ useHandCursor: true });
+  scene.add.text(480, 326, buttonLabel, {
+    fontFamily: "Arial", fontSize: "17px", fontStyle: "bold", color: "#102719"
+  }).setOrigin(0.5).setScrollFactor(0).setDepth(103);
+  button.on("pointerover", () => button.setFillStyle(0x96c85a));
+  button.on("pointerout", () => button.setFillStyle(0x79a947));
+  button.on("pointerdown", () => scene.scene.restart());
 }
 
 function showMessage(scene, message) {
