@@ -43,7 +43,7 @@ function create() {
     platforms.create(x, y, "platform").refreshBody();
   });
 
-  player = this.physics.add.sprite(100, 440, "hero");
+  player = this.physics.add.sprite(100, 440, "hero-walk-sheet", 0);
   player.setCollideWorldBounds(true);
   player.setDepth(10);
   player.setBounce(0);
@@ -277,27 +277,62 @@ function createAnimations(scene) {
 }
 
 function createJungleBackground(scene) {
-  scene.add.rectangle(WORLD_WIDTH / 2, 270, WORLD_WIDTH, 540, 0x8ed5c0);
+  // Sky and distant hills move slowly to create a parallax effect.
+  scene.add.rectangle(WORLD_WIDTH / 2, GAME_HEIGHT / 2, WORLD_WIDTH, GAME_HEIGHT, 0x9bdcc7)
+    .setScrollFactor(0.15)
+    .setDepth(-20);
 
-  for (let x = 0; x < WORLD_WIDTH + 300; x += 360) {
-    scene.add.ellipse(x + 120, 360, 430, 210, 0x6bb68a).setDepth(0);
-    scene.add.ellipse(x + 260, 390, 390, 180, 0x4d9b68).setDepth(0);
+  for (let x = -100; x < WORLD_WIDTH + 500; x += 520) {
+    scene.add.ellipse(x + 170, 355, 560, 220, 0x79c69a)
+      .setScrollFactor(0.22)
+      .setDepth(-15);
+    scene.add.ellipse(x + 390, 390, 520, 190, 0x5eaa7b)
+      .setScrollFactor(0.3)
+      .setDepth(-14);
   }
 
-  for (let x = 70; x < WORLD_WIDTH; x += 190) {
-    scene.add.rectangle(x, 345, 24, 300, 0x765034).setDepth(1);
-    scene.add.circle(x, 245, 72, 0x287744).setDepth(1);
-    scene.add.circle(x - 43, 275, 53, 0x36934d).setDepth(1);
-    scene.add.circle(x + 45, 278, 55, 0x3e9f50).setDepth(1);
-    scene.add.circle(x + 7, 205, 42, 0x4aaa58).setDepth(1);
+  // Sunlight glow and soft clouds sit behind the jungle canopy.
+  scene.add.circle(790, 105, 58, 0xffe99b, 0.8)
+    .setScrollFactor(0.2)
+    .setDepth(-12);
+  for (let x = 180; x < WORLD_WIDTH; x += 760) {
+    scene.add.ellipse(x, 105, 115, 28, 0xe7f5d9, 0.55).setScrollFactor(0.2).setDepth(-11);
+    scene.add.ellipse(x + 35, 96, 75, 24, 0xe7f5d9, 0.55).setScrollFactor(0.2).setDepth(-11);
   }
 
-  for (let x = 130; x < WORLD_WIDTH; x += 310) {
-    scene.add.ellipse(x, 493, 150, 55, 0x286f3c).setDepth(4);
-    scene.add.ellipse(x + 45, 485, 100, 48, 0x3c9148).setDepth(4);
+  // Mid-distance jungle trees.
+  for (let x = 30; x < WORLD_WIDTH + 180; x += 190) {
+    scene.add.rectangle(x, 335, 28, 330, 0x765034)
+      .setScrollFactor(0.72)
+      .setDepth(-2);
+    scene.add.ellipse(x, 240, 150, 125, 0x287744).setScrollFactor(0.72).setDepth(-1);
+    scene.add.ellipse(x - 48, 270, 105, 92, 0x36934d).setScrollFactor(0.72).setDepth(-1);
+    scene.add.ellipse(x + 52, 270, 112, 94, 0x3e9f50).setScrollFactor(0.72).setDepth(-1);
+    scene.add.ellipse(x + 5, 198, 92, 78, 0x4aaa58).setScrollFactor(0.72).setDepth(-1);
+
+    // Hanging vines with small leaf clusters.
+    if (Math.floor(x / 190) % 2 === 0) {
+      scene.add.rectangle(x + 66, 300, 4, 115, 0x347a43).setScrollFactor(0.72).setDepth(0);
+      scene.add.ellipse(x + 66, 357, 12, 24, 0x75bd55).setScrollFactor(0.72).setDepth(0);
+      scene.add.ellipse(x + 61, 376, 10, 18, 0x5ba94b).setScrollFactor(0.72).setDepth(0);
+    }
   }
 
-  scene.add.circle(820, 95, 42, 0xffe58a).setDepth(0);
+  // Foreground plants add depth without hiding the explorer.
+  for (let x = 90; x < WORLD_WIDTH + 180; x += 310) {
+    scene.add.ellipse(x, 493, 160, 58, 0x286f3c).setDepth(4);
+    scene.add.ellipse(x + 48, 484, 112, 48, 0x3c9148).setDepth(4);
+    scene.add.ellipse(x + 104, 501, 78, 38, 0x4b9f4d).setDepth(4);
+    scene.add.ellipse(x + 12, 514, 42, 13, 0x8c8870).setDepth(4);
+  }
+
+  // Small bright plants along the trail.
+  for (let x = 220; x < WORLD_WIDTH; x += 430) {
+    scene.add.line(x, 500, 0, 0, -12, -25, 0x9acb61).setLineWidth(4).setDepth(5);
+    scene.add.line(x + 4, 500, 0, 0, 14, -20, 0x9acb61).setLineWidth(4).setDepth(5);
+    scene.add.ellipse(x - 12, 476, 13, 7, 0x8bc34a).setDepth(5).setAngle(-35);
+    scene.add.ellipse(x + 18, 480, 13, 7, 0x8bc34a).setDepth(5).setAngle(35);
+  }
 }
 
 function showMessage(scene, message) {
