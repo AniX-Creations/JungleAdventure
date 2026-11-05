@@ -23,11 +23,19 @@ let score = 0;
 let scoreText;
 let messageText;
 let messageTimer;
+let lives = 3;
+let livesText;
+let invulnerableUntil = 0;
+let levelComplete = false;
 
 function create() {
   createTextures(this);
   createAnimations(this);
   createJungleBackground(this);
+  score = 0;
+  lives = 3;
+  invulnerableUntil = 0;
+  levelComplete = false;
 
   const platforms = this.physics.add.staticGroup();
 
@@ -50,6 +58,13 @@ function create() {
   player.body.setSize(22, 39);
   player.body.setOffset(9, 10);
   this.physics.add.collider(player, platforms);
+
+  // Snakes guard parts of the trail. Touching one costs a life.
+  const snakes = this.physics.add.staticGroup();
+  [[690, 493], [1190, 493], [1740, 493], [2240, 493]].forEach(([x, y]) => {
+    snakes.create(x, y, "snake");
+  });
+  this.physics.add.overlap(player, snakes, () => damagePlayer(this));
 
   const gems = this.physics.add.staticGroup();
   [
@@ -87,6 +102,11 @@ function create() {
     padding: { x: 12, y: 8 }
   }).setScrollFactor(0).setDepth(30);
 
+  livesText = this.add.text(190, 18, "LIVES: 3", {
+    fontFamily: "Arial", fontSize: "20px", fontStyle: "bold", color: "#ffffff",
+    backgroundColor: "#8a332b", padding: { x: 12, y: 8 }
+  }).setScrollFactor(0).setDepth(30);
+
   this.add.text(20, 64, "JUNGLE TRAIL  |  REACH THE END", {
     fontFamily: "Arial",
     fontSize: "13px",
@@ -118,6 +138,12 @@ function create() {
 }
 
 function update() {
+  if (Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R)) && levelComplete) {
+    this.scene.restart();
+    return;
+  }
+  if (levelComplete) return;
+
   const speed = 250;
   const onGround = player.body.blocked.down || player.body.touching.down;
 
@@ -153,8 +179,9 @@ function update() {
   }
 
   if (player.x > WORLD_WIDTH - 70) {
-    player.setVelocityX(0);
-    showMessage(this, "You reached the end of the first trail!");
+    levelComplete = true;
+    player.setVelocity(0, 0);
+    showMessage(this, "Trail complete! Press R to play again.");
   }
 }
 
@@ -238,6 +265,20 @@ function createTextures(scene) {
   platform.lineBetween(8, 11, 120, 11);
   platform.generateTexture("platform", 128, 32);
   platform.destroy();
+
+  const snake = scene.make.graphics({ x: 0, y: 0 });
+  snake.fillStyle(0x2d713c);
+  snake.fillEllipse(18, 17, 31, 15);
+  snake.fillStyle(0x63a94d);
+  snake.fillEllipse(18, 13, 25, 9);
+  snake.fillStyle(0xf5e9a6);
+  snake.fillCircle(28, 12, 3);
+  snake.fillStyle(0x20251a);
+  snake.fillCircle(29, 12, 1.4);
+  snake.lineStyle(2, 0xc64d43, 1);
+  snake.lineBetween(31, 18, 37, 21);
+  snake.generateTexture("snake", 40, 28);
+  snake.destroy();
 
   const gem = scene.make.graphics({ x: 0, y: 0 });
   gem.fillStyle(0xffdf59);
@@ -332,6 +373,28 @@ function createJungleBackground(scene) {
     scene.add.line(x + 4, 500, 0, 0, 14, -20, 0x9acb61).setLineWidth(4).setDepth(5);
     scene.add.ellipse(x - 12, 476, 13, 7, 0x8bc34a).setDepth(5).setAngle(-35);
     scene.add.ellipse(x + 18, 480, 13, 7, 0x8bc34a).setDepth(5).setAngle(35);
+  }
+}
+
+function damagePlayer(scene) {
+  if (levelComplete || scene.time.now < invulnerableUntil) return;
+
+  lives -= 1;
+  livesText.setText("LIVES: " + lives);
+  invulnerableUntil = scene.time.now + 1300;
+  player.setVelocityY(-300);
+  player.setVelocityX(player.x < WORLD_WIDTH - 100 ? -220 : 220);
+  player.setTint(0xff7777);
+  scene.time.delayedCall(1300, () => {
+    if (player && player.active) player.clearTint();
+  });
+
+  if (lives <= 0) {
+    levelComplete = true;
+    player.setVelocity(0, 0);
+    showMessage(scene, "Game over! Press R to restart.");
+  } else {
+    showMessage(scene, "Snake bite! You lost a life.");
   }
 }
 
